@@ -73,6 +73,7 @@ class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
       envJson=JSON.parse(env);
     }
 
+    console.log("test events from element");
     console.log(this.gameLoadedEvent);
 
     console.log("react component input data");
