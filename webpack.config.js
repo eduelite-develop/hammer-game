@@ -4,7 +4,7 @@ const deps = require("./package.json").dependencies;
 const mf = require("@angular-architects/module-federation/webpack");
 const share = mf.share;
 
-const REGISTER_KEY='react660394d5be361e17e019bbb953b4d7602e2b45629777bc72f515f493';
+const REGISTER_KEY='react5b7399ba17a44c3a9a7bcdb96dd2945a';
 
 module.exports = options => {
   return {

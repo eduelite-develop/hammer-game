@@ -14,7 +14,7 @@ const App = ({data, env, onUpdateData}) => {
   
 }
 
-class Elementreact660394d5be361e17e019bbb953b4d7602e2b45629777bc72f515f493 extends HTMLElement {
+class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
   
   constructor(){
     super();
@@ -43,20 +43,19 @@ class Elementreact660394d5be361e17e019bbb953b4d7602e2b45629777bc72f515f493 exten
     if(data==null){
       //Test Mode
       dataJson={
-        "component" : {
-          "componentTemplateId": "a057a9eeb46843258285818c26a75ea8",
-          "templateDeployId": "66ef735fc6f87915fcb69eef",
-          "content" : {            
-          },
-          "ui" : { }
-        },
-        "runtime" : {
-          "data" : {
-            "word" : "people"
-          }
-        },
-        "constants" : { }
-      };
+  "component" : {
+    "componentTemplateId" : "f95f24c8-7b74-4364-ae9c-4d9ad3293b2f",
+    "templateDeployId" : null,
+    "content" : {
+      "title" : "Dodge React"
+    },
+    "ui" : { },
+    "scores" : [ ]
+  },
+  "runtime" : {
+    "data" : { }
+  }
+};
     }
     else{
       dataJson = JSON.parse(data);
@@ -66,7 +65,7 @@ class Elementreact660394d5be361e17e019bbb953b4d7602e2b45629777bc72f515f493 exten
       envJson={        
         header:{
           'Content-Type': 'application/json',  // Example header
-          'component-api-key': 'component_api_key_value'
+          'component-api-key': 'eyJhbGciOiJIUzI1NiJ9.eyJvd25lciI6ImVkdWVsaXRlLmRldmVsb3BAZ21haWwuY29tIiwicm9sZSI6IlNlbGZUZWFjaGVyIiwib3duZXJOYW1lIjoibHRkcmVhbS5kZXZlbG9wIiwibWVtYmVyc2hpcCI6InJlYWN0NWI3Mzk5YmExN2E0NGMzYTlhN2JjZGI5NmRkMjk0NWEiLCJleHAiOjE3NTc3NDYxNjMsIm9wZXJhdG9yTmFtZSI6Imx0ZHJlYW0uZGV2ZWxvcCIsImlhdCI6MTc1Nzc0MjU2Mywib3BlcmF0b3IiOiJlZHVlbGl0ZS5kZXZlbG9wQGdtYWlsLmNvbSJ9.aXwBPSsb7M_5NkB3UMYQfvwEzRDUqpDIUFzq7VvjuI8'
         }        
       }
     }
@@ -88,4 +87,4 @@ class Elementreact660394d5be361e17e019bbb953b4d7602e2b45629777bc72f515f493 exten
 
 }
 
-customElements.define('react-react660394d5be361e17e019bbb953b4d7602e2b45629777bc72f515f493', Elementreact660394d5be361e17e019bbb953b4d7602e2b45629777bc72f515f493);
+customElements.define('react-react5b7399ba17a44c3a9a7bcdb96dd2945a', Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a);
