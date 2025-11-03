@@ -34,7 +34,7 @@ class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
   }
   
   connectedCallback() {
-
+   
     let data = this.getAttribute("data");
     let env = this.getAttribute("env");
 
@@ -73,7 +73,7 @@ class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
       envJson=JSON.parse(env);
     }
 
-
+    console.log(this.gameLoadedEvent);
 
     console.log("react component input data");
     console.log(dataJson);
