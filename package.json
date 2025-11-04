@@ -7,6 +7,7 @@
     "clean": "rimraf dist",
     "start": "set NODE_OPTIONS=--openssl-legacy-provider && webpack serve --port=4304 --mode=development --devtool=source-map",
     "build": "rimraf dist && git add . && git commit -am \"ready for deploy\" && git push && set NODE_OPTIONS=--openssl-legacy-provider && webpack --mode=production",
+    "build-nogit": "rimraf dist && set NODE_OPTIONS=--openssl-legacy-provider && webpack --mode=development",
     "predeploy": "npm run build",
     "deploy": "npm run build && http-server dist --cors"
   },

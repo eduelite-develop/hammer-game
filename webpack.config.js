@@ -74,6 +74,7 @@ module.exports = options => {
     ],
     devServer: {
       port: 4204
-    }
+    },
+    devtool: false
   }
 }

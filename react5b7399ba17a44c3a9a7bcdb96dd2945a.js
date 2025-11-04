@@ -1,14 +1,41 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import HammerGame from './HammerGame';
 import './index.css'
 
-const App = ({data, env, onUpdateData}) => {
+const App = ({data, env, gameLoadedEvent, gameOverEvent, triggerLearningEvent, onUpdateData}) => {
     
    console.log("React version:", React.version);
 
+   const handleLoaded = () => {
+    if (gameLoadedEvent) {
+      gameLoadedEvent(
+      { 
+        onCompleteCallback: (gameState)=>{
+
+          console.log("please update game parameters using the result");
+          console.log("result:");
+          console.log(gameState);
+
+          if(gameState && gameState.lives){
+            this.lives = gameState.lives;
+          }
+  
+          if(gameState && gameState.score){
+            this.score = gameState.score;
+          }          
+
+      }
+      
+      });
+    }
+  };
+
+  
+
     return (
       <>
-        <div>develop the react component</div>
+       <HammerGame gameState={gameState}  gameOverEvent={gameOverEvent} triggerLearningEvent={triggerLearningEvent}/>
       </>
     )
   
@@ -18,9 +45,12 @@ class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
   
   constructor(){
     super();
-    this.dataState = null;
+      this.dataState = null;
       // Bind the setDataState method to ensure `this` refers to the component instance.
       this.setDataState = this.setDataState.bind(this);
+      this._gameLoadedEvent = null; // store function here
+      this._triggerLearningEvent = null; // store function here
+      this._gameOverEvent = null; // store function here
   }
 
   getDataState(){
@@ -33,6 +63,37 @@ class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
     console.log(this.dataState);
   }
   
+  set gameLoadedEvent(fn) {
+    this._gameLoadedEvent = fn;
+    this._gameLoadedEvent = this._gameLoadedEvent.bind(this);
+    console.log('✅ gameLoadedEvent assigned');    
+  }
+
+  get gameLoadedEvent() {
+    return this._gameLoadedEvent;
+  }
+
+  set triggerLearningEvent(fn) {
+    this._triggerLearningEvent = fn;
+    this._triggerLearningEvent = this._triggerLearningEvent.bind(this);
+    console.log('✅ gameLoadedEvent assigned');    
+  }
+
+  get triggerLearningEvent() {
+    return this._triggerLearningEvent;
+  }
+
+  set gameOverEvent(fn) {
+    this._gameOverEvent = fn;
+    this._gameOverEvent = this._gameOverEvent.bind(this);
+    console.log('✅ gameLoadedEvent assigned');    
+  }
+
+  get gameOverEvent() {
+    return this._gameOverEvent;
+  }
+
+
   connectedCallback() {
    
     let data = this.getAttribute("data");
@@ -74,12 +135,37 @@ class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
     }
 
     console.log("test events from element");
-    console.log(this.gameLoadedEvent);
+    
 
     console.log("react component input data");
     console.log(dataJson);
-    const root = ReactDOM.createRoot(this);
-    root.render(<App data={dataJson} env={envJson} onUpdateData={this.setDataState}/>);
+
+    const container = document.createElement('div');
+    container.style.width = '80vw';
+    container.style.height = '70vh';
+    this.appendChild(container);
+
+    const waitForFn = () => {
+
+      if (this._gameLoadedEvent && this._gameOverEvent && this._triggerLearningEvent) {
+       
+        const root = ReactDOM.createRoot(container);
+        root.render(
+        <App 
+          data={dataJson} 
+          env={envJson} 
+          gameLoadedEvent={this._gameLoadedEvent} 
+          gameOverEvent={this._gameOverEvent} 
+          triggerLearningEvent={this._triggerLearningEvent} 
+          onUpdateData={this.setDataState}/>);
+        } else {
+           requestAnimationFrame(waitForFn); // wait 1 frame, check again
+        }
+
+    };
+    waitForFn();
+
+
 
     // Expose getReactVersion function to the custom element
     this.getReactVersion = () => React.version;
