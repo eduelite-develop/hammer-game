@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
-const HammerGame = (gameState, gameOverEvent, triggerLearningEvent) => {
+const HammerGame = ({data, gameState, gameOverEvent, triggerLearningEvent}) => {
 
     const [score, setScore] = useState(gameState && gameState.score? gameState.score: 0);
     const [hammersLeft, setHammersLeft] = useState(gameState && gameState.hammers? gameState.hammers: 3);
@@ -17,17 +17,14 @@ const HammerGame = (gameState, gameOverEvent, triggerLearningEvent) => {
     const timerRef = useRef(null);
   
     const targetImages = [
-      "https://pngimg.com/d/mole_PNG17.png",
-      "https://pngimg.com/d/mouse_PNG102.png",
-      "https://pngimg.com/d/chicken_PNG2142.png",
-      "https://pngimg.com/d/duck_PNG5025.png",
-      "https://pngimg.com/d/rabbit_PNG14107.png",
-      "https://pngimg.com/d/monster_PNG8.png",
-      "https://upload.wikimedia.org/wikipedia/commons/3/3f/Target_icon.svg",
+      "https://eduelite-develop.github.io/resouce/f95f24c8-7b74-4364-ae9c-4d9ad3293b2f/rabbit_svgrepo_com.svg",
+      "https://eduelite-develop.github.io/resouce/f95f24c8-7b74-4364-ae9c-4d9ad3293b2f/elephant_8_svgrepo_com.svg",
+      "https://eduelite-develop.github.io/resouce/f95f24c8-7b74-4364-ae9c-4d9ad3293b2f/dog_svgrepo_com.svg",
+      "https://eduelite-develop.github.io/resouce/f95f24c8-7b74-4364-ae9c-4d9ad3293b2f/cat_5_svgrepo_com.svg"
     ];
   
     const hitSound = new Audio(
-      "https://actions.google.com/sounds/v1/impacts/metal_clang.ogg"
+      "https://eduelite-develop.github.io/resouce/f95f24c8-7b74-4364-ae9c-4d9ad3293b2f/metal_slam_5_189786.mp3"
     );
   
     const getRandomImage = () =>
@@ -50,9 +47,9 @@ const HammerGame = (gameState, gameOverEvent, triggerLearningEvent) => {
         if(t <= 1){
         
         //trigger GameOverEvent, then
-        gameActive = false;
-        this.gameOverEvent({
-            score: this.score,
+        setGameActive (false);
+        gameOverEvent({
+            score: score,
             onCompleteCallback: (result)=>{
                 console.log("game over");
             }
@@ -72,13 +69,16 @@ const HammerGame = (gameState, gameOverEvent, triggerLearningEvent) => {
       if (!gameActive) return;
       const interval = setInterval(() => {
         if (!isPaused) moveCircle();
-      }, 800);
+      }, 2000);
       return () => clearInterval(interval);
     }, [gameActive, isPaused]);
   
     const startGame = () => {
   
   //GameLoadEvent trigger, the callback to set
+
+        console.log(gameOverEvent);
+        console.log(triggerLearningEvent);
    
       setScore(0);
       setTimeLeft(30);
@@ -156,10 +156,12 @@ const HammerGame = (gameState, gameOverEvent, triggerLearningEvent) => {
       setIsPaused(false); // Resume timer
   
       //LearningEventTrigger, get the result{points:} to be transfered to hammers
-      this.triggerLearningEvent({
+      triggerLearningEvent({
 
         onCompleteCallback: (result)=>{
-            setHammersLeft(result.points);
+            if(result){
+                setHammersLeft(result.points);
+            }            
         }
 
       })  
@@ -179,7 +181,8 @@ const HammerGame = (gameState, gameOverEvent, triggerLearningEvent) => {
           overflow: "hidden",
           borderRadius: "10px",
           textAlign: "center",
-          cursor: "none",
+          cursor: gameActive && timeLeft > 1
+           && hammersLeft>0 ?"none": "pointer"
         }}
       >
         <h1>🎯 Hammer Click Game</h1>
@@ -250,6 +253,8 @@ const HammerGame = (gameState, gameOverEvent, triggerLearningEvent) => {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
+                filter: "invert(39%) sepia(94%) saturate(2047%) hue-rotate(194deg) brightness(95%) contrast(101%)",
+                  
               }}
             />
           </div>
@@ -272,9 +277,9 @@ const HammerGame = (gameState, gameOverEvent, triggerLearningEvent) => {
         ))}
   
         {/* Hammer (only visible when game is active) */}
-        { (gameActive && hammersLeft > 0 )(
+        { gameActive && hammersLeft > 0 && ( 
         <img
-        src="https://png.pngtree.com/png-clipart/20190516/original/pngtree-vector-hammer-icon-png-image_4231713.jpg"
+        src="https://eduelite-develop.github.io/resouce/f95f24c8-7b74-4364-ae9c-4d9ad3293b2f/hammer_svgrepo_com.svg"
             alt="hammer"
             style={{
             position: "absolute",
@@ -288,6 +293,7 @@ const HammerGame = (gameState, gameOverEvent, triggerLearningEvent) => {
             transformOrigin: "top right",
             transition: "transform 0.1s ease",
             pointerEvents: "none",
+            filter: "invert(18%) sepia(95%) saturate(7485%) hue-rotate(357deg) brightness(90%) contrast(116%)",
             }}
         />
         )}

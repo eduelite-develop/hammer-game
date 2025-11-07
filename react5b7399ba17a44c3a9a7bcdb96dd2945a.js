@@ -1,4 +1,5 @@
-import React from 'react'
+
+import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from 'react-dom/client'
 import HammerGame from './HammerGame';
 import './index.css'
@@ -6,51 +7,65 @@ import './index.css'
 const App = ({data, env, gameLoadedEvent, gameOverEvent, triggerLearningEvent, onUpdateData}) => {
     
    console.log("React version:", React.version);
+   const [gameState, setGameState] = useState(null);
 
-   const handleLoaded = () => {
+  // Call gameLoadedEvent once when App mounts
+  useEffect(() => {
+
+    console.log(gameLoadedEvent);
+    console.log(gameOverEvent);
+    console.log(triggerLearningEvent);
+
     if (gameLoadedEvent) {
-      gameLoadedEvent(
-      { 
-        onCompleteCallback: (gameState)=>{
+      gameLoadedEvent({
+        onCompleteCallback: (loadedGameState) => {
+          console.log("Game state loaded:", loadedGameState);
 
-          console.log("please update game parameters using the result");
-          console.log("result:");
-          console.log(gameState);
-
-          if(gameState && gameState.lives){
-            this.lives = gameState.lives;
+          // Update state
+          if(loadedGameState){
+            setGameState(loadedGameState);
           }
-  
-          if(gameState && gameState.score){
-            this.score = gameState.score;
-          }          
-
-      }
-      
+          else{
+            setGameState({
+              score: 0,
+              hammers: 10
+            });
+          }
+         
+        }
       });
+
     }
-  };
+  }, []); // Empty dependency array = runs once on mount
 
-  
+  // Only render HammerGame when gameState is available
+  if (!gameState) {
+    return <div>Initial game...</div>;
+  }
 
-    return (
-      <>
-       <HammerGame gameState={gameState}  gameOverEvent={gameOverEvent} triggerLearningEvent={triggerLearningEvent}/>
-      </>
-    )
+  return (
+    <HammerGame
+      data={data}
+      gameState={gameState}
+      gameOverEvent={gameOverEvent}
+      triggerLearningEvent={triggerLearningEvent}
+    />
+  );
   
 }
 
 class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
   
+   _debug = true;
+
   constructor(){
     super();
       this.dataState = null;
       // Bind the setDataState method to ensure `this` refers to the component instance.
       this.setDataState = this.setDataState.bind(this);
-      this._gameLoadedEvent = null; // store function here
-      this._triggerLearningEvent = null; // store function here
-      this._gameOverEvent = null; // store function here
+      this._gameLoadedEvent = this._debug? (event)=>{alert("game loaded"); event.onCompleteCallback(null)}: null; // store function here
+      this._triggerLearningEvent = this._debug? (event)=>{alert("game learning"), event.onCompleteCallback({points: 3})}:null; // store function here
+      this._gameOverEvent =  this._debug? (event)=>{alert("game over")}:null; // store function here
   }
 
   getDataState(){
@@ -65,7 +80,6 @@ class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
   
   set gameLoadedEvent(fn) {
     this._gameLoadedEvent = fn;
-    this._gameLoadedEvent = this._gameLoadedEvent.bind(this);
     console.log('✅ gameLoadedEvent assigned');    
   }
 
@@ -74,9 +88,8 @@ class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
   }
 
   set triggerLearningEvent(fn) {
-    this._triggerLearningEvent = fn;
-    this._triggerLearningEvent = this._triggerLearningEvent.bind(this);
-    console.log('✅ gameLoadedEvent assigned');    
+    this._triggerLearningEvent = fn;    
+    console.log('✅ triggerLearningEvent assigned');    
   }
 
   get triggerLearningEvent() {
@@ -85,8 +98,7 @@ class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
 
   set gameOverEvent(fn) {
     this._gameOverEvent = fn;
-    this._gameOverEvent = this._gameOverEvent.bind(this);
-    console.log('✅ gameLoadedEvent assigned');    
+    console.log('✅ gameOverEvent assigned');    
   }
 
   get gameOverEvent() {
