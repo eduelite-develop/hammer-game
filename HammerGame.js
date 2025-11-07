@@ -69,7 +69,7 @@ const HammerGame = ({data, gameState, gameOverEvent, triggerLearningEvent}) => {
       if (!gameActive) return;
       const interval = setInterval(() => {
         if (!isPaused) moveCircle();
-      }, 2000);
+      }, 1500);
       return () => clearInterval(interval);
     }, [gameActive, isPaused]);
   
