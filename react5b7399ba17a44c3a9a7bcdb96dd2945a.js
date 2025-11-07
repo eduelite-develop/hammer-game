@@ -55,17 +55,18 @@ const App = ({data, env, gameLoadedEvent, gameOverEvent, triggerLearningEvent, o
 }
 
 class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
-  
-   _debug = true;
-
+ 
   constructor(){
     super();
+
+      this._debug = false;
+
       this.dataState = null;
       // Bind the setDataState method to ensure `this` refers to the component instance.
       this.setDataState = this.setDataState.bind(this);
-      this._gameLoadedEvent = this._debug? (event)=>{alert("game loaded"); event.onCompleteCallback(null)}: null; // store function here
-      this._triggerLearningEvent = this._debug? (event)=>{alert("game learning"), event.onCompleteCallback({points: 3})}:null; // store function here
-      this._gameOverEvent =  this._debug? (event)=>{alert("game over")}:null; // store function here
+      this._gameLoadedEvent =  null; // store function here
+      this._triggerLearningEvent = null; // store function here
+      this._gameOverEvent = null; // store function here
   }
 
   getDataState(){
@@ -108,6 +109,19 @@ class Elementreact5b7399ba17a44c3a9a7bcdb96dd2945a extends HTMLElement {
 
   connectedCallback() {
    
+
+    // Get debug value
+    const debugAttr = this.getAttribute("debug");
+    this._debug = debugAttr !== null && debugAttr !== "false"; // convert string → boolean
+
+    if (this._debug) {
+      console.log("Debug mode enabled");
+      this._gameLoadedEvent =  (event)=>{alert("game loaded"); event.onCompleteCallback(null)}; // store function here
+      this._triggerLearningEvent = (event)=>{alert("game learning"), event.onCompleteCallback({points: 3})}; // store function here
+      this._gameOverEvent =  (event)=>{alert("game over")}; // store function here
+
+    }
+
     let data = this.getAttribute("data");
     let env = this.getAttribute("env");
 

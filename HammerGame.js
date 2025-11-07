@@ -15,6 +15,7 @@ const HammerGame = ({data, gameState, gameOverEvent, triggerLearningEvent}) => {
     const [isPaused, setIsPaused] = useState(false);
   
     const timerRef = useRef(null);
+    const hitSound = useRef(null);
   
     const targetImages = [
       "https://eduelite-develop.github.io/resouce/f95f24c8-7b74-4364-ae9c-4d9ad3293b2f/rabbit_svgrepo_com.svg",
@@ -22,10 +23,6 @@ const HammerGame = ({data, gameState, gameOverEvent, triggerLearningEvent}) => {
       "https://eduelite-develop.github.io/resouce/f95f24c8-7b74-4364-ae9c-4d9ad3293b2f/dog_svgrepo_com.svg",
       "https://eduelite-develop.github.io/resouce/f95f24c8-7b74-4364-ae9c-4d9ad3293b2f/cat_5_svgrepo_com.svg"
     ];
-  
-    const hitSound = new Audio(
-      "https://eduelite-develop.github.io/resouce/f95f24c8-7b74-4364-ae9c-4d9ad3293b2f/metal_slam_5_189786.mp3"
-    );
   
     const getRandomImage = () =>
       targetImages[Math.floor(Math.random() * targetImages.length)];
@@ -36,50 +33,81 @@ const HammerGame = ({data, gameState, gameOverEvent, triggerLearningEvent}) => {
       setCirclePos({ top, left });
       setTargetImage(getRandomImage());
     };
-  
-    // Timer effect
+
     useEffect(() => {
-      if (!gameActive || timeLeft <= 0 || isPaused) return;
+        hitSound.current = new Audio(
+          "https://eduelite-develop.github.io/resouce/f95f24c8-7b74-4364-ae9c-4d9ad3293b2f/metal_slam_5_189786.mp3"
+        );
+        hitSound.current.volume = 0.7; // optional volume control
+    }, []);
   
-      timerRef.current = setInterval(() => {
-        setTimeLeft((t) => {
-  
-        if(t <= 1){
-        
-        //trigger GameOverEvent, then
-        setGameActive (false);
-        gameOverEvent({
-            score: score,
-            onCompleteCallback: (result)=>{
-                console.log("game over");
-            }
-        })
-        return 0;
-        }
-        return t - 1;
-        
-        });
-            }, 1000);
-  
-      return () => clearInterval(timerRef.current);
-    }, [gameActive, timeLeft, isPaused]);
+    useEffect(() => {
+        if (!gameActive || isPaused) return;
+      
+        let lastTick = performance.now();
+        let accumulated = 0;
+        let rafId;
+        const timeRef = { current: timeLeft }; // local cache
+      
+        // keep the ref in sync with React state
+        // (important so the loop always sees latest value)
+        const updateRef = () => (timeRef.current = timeLeft);
+        updateRef();
+      
+        const tick = (now) => {
+          const delta = now - lastTick;
+          lastTick = now;
+          accumulated += delta;
+      
+          while (accumulated >= 1000) {
+            accumulated -= 1000;
+            setTimeLeft((t) => {
+              const newTime = Math.max(0, t - 1);
+              timeRef.current = newTime;
+              return newTime;
+            });
+          }
+      
+          if (gameActive && !isPaused && timeRef.current > 0) {
+            rafId = requestAnimationFrame(tick);
+          } else if (timeRef.current <= 0) {
+            console.log("game over");
+            setGameActive(false);
+            gameOverEvent({ score });
+          }
+        };
+      
+        rafId = requestAnimationFrame(tick);
+      
+        return () => cancelAnimationFrame(rafId);
+      }, [gameActive, isPaused, score, timeLeft]);
   
     // Move target
     useEffect(() => {
-      if (!gameActive) return;
-      const interval = setInterval(() => {
-        if (!isPaused) moveCircle();
-      }, 1500);
-      return () => clearInterval(interval);
-    }, [gameActive, isPaused]);
+        if (!gameActive) return;
+      
+        let lastMove = performance.now();
+        let rafId;
+      
+        const loop = (now) => {
+          // Only move the circle every 1500ms
+          if (!isPaused && now - lastMove >= 1500) {
+            moveCircle();
+            lastMove = now;
+          }
+      
+          // Keep looping as long as game is active
+          rafId = requestAnimationFrame(loop);
+        };
+      
+        rafId = requestAnimationFrame(loop);
+      
+        return () => cancelAnimationFrame(rafId);
+      }, [gameActive, isPaused]);
+      
   
     const startGame = () => {
   
-  //GameLoadEvent trigger, the callback to set
-
-        console.log(gameOverEvent);
-        console.log(triggerLearningEvent);
-   
       setScore(0);
       setTimeLeft(30);
       setGameActive(true);
@@ -122,10 +150,13 @@ const HammerGame = ({data, gameState, gameOverEvent, triggerLearningEvent}) => {
         setScore((s) => s + 1);
         moveCircle();
   
-        hitSound.currentTime = 0;
-        hitSound.play().catch(() => {});
+        // ✅ Play hit sound safely
+      if (hitSound.current) {
+        hitSound.current.currentTime = 0;
+        hitSound.current.play().catch(() => {});
+      }
   
-        const newParticles = Array.from({ length: 10 }).map((_, i) => ({
+    const newParticles = Array.from({ length: 10 }).map((_, i) => ({
           id: Date.now() + i,
           x: cx,
           y: cy,
@@ -140,28 +171,48 @@ const HammerGame = ({data, gameState, gameOverEvent, triggerLearningEvent}) => {
     };
   
     useEffect(() => {
-      if (particles.length === 0) return;
-      const interval = setInterval(() => {
-        setParticles((prev) =>
-          prev
-            .map((p) => ({ ...p, x: p.x + p.dx, y: p.y + p.dy, dy: p.dy + 0.3 }))
-            .filter((p) => p.y < 600)
-        );
-      }, 30);
-      return () => clearInterval(interval);
-    }, [particles]);
-  
+        if (particles.length === 0) return;
+      
+        let rafId;
+        let lastTime = performance.now();
+      
+        const animate = (now) => {
+          const delta = now - lastTime;
+          lastTime = now;
+      
+          // Update particle positions
+          setParticles((prev) =>
+            prev
+              .map((p) => ({
+                ...p,
+                x: p.x + p.dx,
+                y: p.y + p.dy,
+                dy: p.dy + 0.3, // gravity
+              }))
+              .filter((p) => p.y < 600) // remove off-screen particles
+          );
+      
+          rafId = requestAnimationFrame(animate);
+        };
+      
+        rafId = requestAnimationFrame(animate);
+      
+        return () => cancelAnimationFrame(rafId);
+      }, [particles.length]);
+      
+      
     const refillHammers = () => {
-   
-      setIsPaused(false); // Resume timer
-  
+      
       //LearningEventTrigger, get the result{points:} to be transfered to hammers
       triggerLearningEvent({
 
         onCompleteCallback: (result)=>{
+
             if(result){
                 setHammersLeft(result.points);
             }            
+            
+            setIsPaused(false); // Resume t
         }
 
       })  
